@@ -61,13 +61,14 @@
         <!-- <div class="row"> -->
           <section id="current-city">
             <div class="card">
-              <h2 class="card-header" id="currentCityAndDate">London</h2>
+              <h2 class="card-header" id="currentCityAndDate">London></h2>
+
               <div class="card-body">
                 <!-- <h5 class="card-title"></h5> -->
                 <p class="card-text" id="cityTemp"></p>
                 <p class="card-text" id="cityHumidity"></p>
                 <p class="card-text" id="cityWindSpeed"></p>
-                <p class="card-text" id="cityUV"></p>
+                <p class="card-text" id="cityUV">UV Index: <span id="uvIndex"></span></p>
               </div>
             </div>
           </section>
@@ -88,14 +89,16 @@
       var humidity;
       var windSpeed;
       var uvIndex;
+      var weatherIcon;
+      var latitude;
+      var longitude;
+      var uvIndexBGColor;
 
       // Set the API key for OpenWeather app.
       var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
       //var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&q=London&appid=" + APIKey;
       
-      var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=London&units=imperial&appid=" + APIKey;
-
-      $("#currentCityAndDate").text("London" + " (" + todaysDate + ")");
+      var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=Berlin&units=imperial&appid=" + APIKey;
 
       // Create an AJAX call.
       $.ajax({
@@ -103,6 +106,12 @@
         method: "GET"
       }).then(function(response) {
         console.log(response);
+
+        // Get the location of the weather icon and put it in an img tag.
+        weatherIcon = " <img src=\"" + "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
+
+        // The header for the city being searched for is the city name, today's date, and the current weather icon.
+        $("#currentCityAndDate").html("London" + " (" + todaysDate + ")" + weatherIcon);
 
         // Get the temperature from the response object.
         temp = response.main.temp;
@@ -116,10 +125,45 @@
         windSpeed = response.wind.speed;
         $("#cityWindSpeed").text("Wind Speed: " + windSpeed.toString() + " MPH");
 
+        // Get the longitute and latitude in order to determine the UV Index.
+        longitude = response.coord.lon;
+        latitude = response.coord.lat;
+
+        // Get the UV information.
+        queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat=" + latitude + "&lon=" + longitude + "&appid=" + APIKey;
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(responseUV) {
+          uvIndex = responseUV.value;
+          $("#uvIndex").text(uvIndex.toString());
+
+          $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
+        });
       });
 
-      
+      function getUVIndexColor(uvIndex) {
+        var style;
 
+        if ((uvIndex >= 0) && (uvIndex <= 2)) {
+          style = "color: white; background-color: green";
+        }
+        else if ((uvIndex >= 3) && (uvIndex <= 5)) {
+          style = "color: black; background-color: yellow";
+        }
+        else if ((uvIndex >= 6) && (uvIndex <= 7)) {
+          style = "color: black; background-color: orange";
+        }
+        else if ((uvIndex >= 8) && (uvIndex <= 10)) {
+          style = "color: white; background-color: red";
+        }
+        else if (uvIndex >= 11) {
+          style = "color: white; background-color: purple";
+        };
+
+        return style;
+          
+      }
 
     </script>
   </body>
