@@ -58,6 +58,7 @@
       </div>
 
       <div class="col-md-9">
+
         <!-- <div class="row"> -->
           <section id="current-city">
             <div class="card">
@@ -72,9 +73,20 @@
               </div>
             </div>
           </section>
-        <!-- </div> -->
-
-        <div class="row"></div>
+        
+          <section id="five-days">
+            <!-- <div class="row row-cols-1 row-cols-md-3 g-4">
+              <div class="col">
+                <div class="card">
+                  <img src="..." class="card-img-top" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+          </section>
       </div>
     </div>
 
@@ -83,6 +95,11 @@
     <script src="assets/js/script.js"></script>
 
     <script>
+      // Get any saved cities from local storage.
+      var savedCities = JSON.parse(localStorage.getItem("savedCities"));
+
+      // build the side menu.
+
        // This .on("click") function will trigger the AJAX Call
        $("#search-button").on("click", function(event) {
 
@@ -103,8 +120,6 @@
     
       // Set the API key for OpenWeather app.
       var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
-      //var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&q=London&appid=" + APIKey;
-      
       var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=" + APIKey;
 
       // Create an AJAX call.
@@ -112,8 +127,6 @@
         url: queryURL,
         method: "GET"
       }).then(function(response) {
-        console.log(response);
-
         // Get the location of the weather icon and put it in an img tag.
         weatherIcon = " <img src=\"" + "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
 
@@ -137,7 +150,7 @@
         latitude = response.coord.lat;
 
         // Get the UV information.
-        queryURL = "http://api.openweathermap.org/data/2.5/uvi?lat=" + latitude + "&lon=" + longitude + "&appid=" + APIKey;
+        queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + latitude + "&lon=" + longitude + "&appid=" + APIKey;
         $.ajax({
           url: queryURL,
           method: "GET"
@@ -145,11 +158,12 @@
           $("#cityUV").text("UV Index: ");
 
           var uvIndex = responseUV.value;
-          console.log(uvIndex.toString());
 
           $("#uvIndex").text(uvIndex.toString());
           $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
         });
+
+        getFiveDayForecast(city, APIKey);
       });
 
       function getUVIndexColor(uvIndex) {
@@ -172,6 +186,42 @@
         };
 
         return style;
+      };
+
+      function getFiveDayForecast(city, APIKey) {
+         // Get the 5 day forecast
+        //var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&q=" + city + "&appid=" + APIKey;
+
+        var queryURL = "https://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&cnt=5&units=imperial&appid=" + APIKey;
+
+        console.log(queryURL);
+
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(response) {
+          console.log(response);
+
+          // $("#cityUV").text("UV Index: ");
+
+          // var uvIndex = response.value;
+          // console.log(uvIndex.toString());
+
+          // $("#uvIndex").text(uvIndex.toString());
+          // $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
+
+          // <div class="row row-cols-1 row-cols-md-3 g-4">
+          //     <div class="col">
+          //       <div class="card">
+          //         <img src="..." class="card-img-top" alt="...">
+          //         <div class="card-body">
+          //           <h5 class="card-title">Card title</h5>
+          //           <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+          //         </div>
+          //       </div>
+          //     </div>
+          //   </div>
+        });
       }
     })
     </script>
