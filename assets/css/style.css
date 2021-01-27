@@ -28,3 +28,8 @@ header {
 #uvIndex {
     padding: 5px;
 }
+
+.day-card {
+    color: white;
+    background-color: royalblue;
+}
