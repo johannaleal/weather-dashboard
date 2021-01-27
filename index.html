@@ -40,8 +40,8 @@
             <div class="card-header flush">
               <h4>Search for a City:</h4>
               <form class="d-flex">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
+                <input class="form-control me-2" id="search-city" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" id="search-button" type="submit"><i class="fas fa-search"></i></button>
               </form>
             </div>
 
@@ -61,14 +61,14 @@
         <!-- <div class="row"> -->
           <section id="current-city">
             <div class="card">
-              <h2 class="card-header" id="currentCityAndDate">London></h2>
+              <h2 class="card-header" id="currentCityAndDate"></h2>
 
               <div class="card-body">
                 <!-- <h5 class="card-title"></h5> -->
                 <p class="card-text" id="cityTemp"></p>
                 <p class="card-text" id="cityHumidity"></p>
                 <p class="card-text" id="cityWindSpeed"></p>
-                <p class="card-text" id="cityUV">UV Index: <span id="uvIndex"></span></p>
+                <p class="card-text"><span id="cityUV"></span><span id="uvIndex"></span></p>
               </div>
             </div>
           </section>
@@ -83,6 +83,9 @@
     <script src="assets/js/script.js"></script>
 
     <script>
+       // This .on("click") function will trigger the AJAX Call
+       $("#search-button").on("click", function(event) {
+
       // Display the current date in header.
       var todaysDate = moment().format("M/D/YY");
       var temp;
@@ -93,12 +96,16 @@
       var latitude;
       var longitude;
       var uvIndexBGColor;
+      var city = $("#search-city").val();
 
+      // Capitalize first letter of city.
+      city = city[0].toUpperCase() + city.substring(1).toLowerCase();
+    
       // Set the API key for OpenWeather app.
       var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
       //var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&q=London&appid=" + APIKey;
       
-      var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=Berlin&units=imperial&appid=" + APIKey;
+      var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=" + APIKey;
 
       // Create an AJAX call.
       $.ajax({
@@ -111,18 +118,18 @@
         weatherIcon = " <img src=\"" + "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
 
         // The header for the city being searched for is the city name, today's date, and the current weather icon.
-        $("#currentCityAndDate").html("London" + " (" + todaysDate + ")" + weatherIcon);
+        $("#currentCityAndDate").html(city + " (" + todaysDate + ")" + weatherIcon);
 
         // Get the temperature from the response object.
-        temp = response.main.temp;
-        $("#cityTemp").text("Temperature: " + temp.toString());
+        temp = (response.main.temp).toFixed(1);
+        $("#cityTemp").text("Temperature: " + temp.toString() + "\xB0F");
 
         // Get the humidity.
         humidity = response.main.humidity;
         $("#cityHumidity").text("Humidity: " + humidity.toString() + "%");
 
         // GEt the wind speed.
-        windSpeed = response.wind.speed;
+        windSpeed = (response.wind.speed).toFixed(1);
         $("#cityWindSpeed").text("Wind Speed: " + windSpeed.toString() + " MPH");
 
         // Get the longitute and latitude in order to determine the UV Index.
@@ -135,9 +142,12 @@
           url: queryURL,
           method: "GET"
         }).then(function(responseUV) {
-          uvIndex = responseUV.value;
-          $("#uvIndex").text(uvIndex.toString());
+          $("#cityUV").text("UV Index: ");
 
+          var uvIndex = responseUV.value;
+          console.log(uvIndex.toString());
+
+          $("#uvIndex").text(uvIndex.toString());
           $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
         });
       });
@@ -162,9 +172,8 @@
         };
 
         return style;
-          
       }
-
+    })
     </script>
   </body>
 </html>
