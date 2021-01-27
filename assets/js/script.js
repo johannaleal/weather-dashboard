@@ -22,7 +22,6 @@ function getCityWeather(city) {
    var longitude;
    var uvIndexBGColor;
    
-
    // Capitalize first letter of city.
    city = city[0].toUpperCase() + city.substring(1).toLowerCase();
 
@@ -134,7 +133,7 @@ function getCityWeather(city) {
 
 $("#search-button").on("click", function(event) {
   event.preventDefault();
-  
+
   city = $("#search-city").val();
 
   if (city) {
