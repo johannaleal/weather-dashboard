@@ -106,7 +106,7 @@
         event.preventDefault();
 
         // Display the current date in header.
-        var todaysDate = moment().format("M/D/YY");
+        var todaysDate = moment().format("M/D/YYYY");
         var temp;
         var humidity;
         var windSpeed;
@@ -192,12 +192,7 @@
 
         function getFiveDayForecast(city, APIKey) {
           // Get the 5 day forecast
-          //var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&q=" + city + "&appid=" + APIKey;
-
-          //var queryURL = "https://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&cnt=5&units=imperial&appid=" + APIKey;
           var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=5&units=imperial&appid=" + APIKey;
-
-          //console.log(queryURL);
 
           $.ajax({
             url: queryURL,
@@ -206,30 +201,23 @@
             console.log(response);
 
             response.list.forEach(function(day, index) {
-            console.log(day);
 
-            // $("#cityUV").text("UV Index: ");
+              var cardDate = day.dt_txt;
+              cardDate = Date(cardDate * 1000);
+              cardDate = moment(cardDate).format("M/D/YYYY");
 
-            // var uvIndex = response.value;
-            // console.log(uvIndex.toString());
+              var fiveeDayCard = "<div class=\"col\">" + 
+                                    "<div class=\"card\">" +
+                                        // "<img src=\" alt=\"...\">" +
+                                        "<div class=\"card-body day-card\">" +
+                                          "<h5 class=\"card-title\">" + cardDate + "</h5>" + 
+                                          "<p class=\"card-text\">Temp: " + day.main.temp.toString() + "\xB0F</p>" + 
+                                          "<p class=\"card-text\">Humidity: " + day.main.humidity.toString() + "%</p>" +
+                                        "</div>" +
+                                      "</div>" + 
+                                    "</div>";
 
-            // $("#uvIndex").text(uvIndex.toString());
-            // $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
-            var cardDate = day.dt_txt;
-            cardDate = Date(cardDate).toLocaleDateString();
-
-            var fiveeDayCard = "<div class=\"col\">" + 
-                                  "<div class=\"card\">" +
-                                      // "<img src=\" alt=\"...\">" +
-                                      "<div class=\"card-body day-card\">" +
-                                        "<h5 class=\"card-title\">" + cardDate + "</h5>" + 
-                                        "<p class=\"card-text\">Temp: " + day.main.temp.toString() + "\xB0F</p>" + 
-                                        "<p class=\"card-text\">Humidity: " + day.main.humidity.toString() + "%</p>" +
-                                      "</div>" +
-                                    "</div>" + 
-                                  "</div>";
-
-              $("#five-days").append(fiveeDayCard);
+                $("#five-days").append(fiveeDayCard);
             });
           });
         }
