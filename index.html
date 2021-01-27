@@ -33,22 +33,47 @@
       <h1>Weather Dashboard</h1>
     </header>
 
-    <div class="card" style="width: 18rem;">
-      <div class="card-header flush">
-        <h4>Search for a City:</h4>
-        <form class="d-flex">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
-        </form>
+    <div class="row">
+      <div class="col-md-3">
+        <section id="left-nav">
+          <div class="card" style="width: 18rem;">
+            <div class="card-header flush">
+              <h4>Search for a City:</h4>
+              <form class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
+              </form>
+            </div>
+
+            <div class="list-group flush">
+              <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+                Los Angeles
+              </a>
+              <a href="#" class="list-group-item list-group-item-action">New York</a>
+              <a href="#" class="list-group-item list-group-item-action">Paris</a>
+              <a href="#" class="list-group-item list-group-item-action">London</a>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <div class="list-group flush">
-        <a href="#" class="list-group-item list-group-item-action" aria-current="true">
-          Los Angeles
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">New York</a>
-        <a href="#" class="list-group-item list-group-item-action">Paris</a>
-        <a href="#" class="list-group-item list-group-item-action">London</a>
+      <div class="col-md-9">
+        <!-- <div class="row"> -->
+          <section id="current-city">
+            <div class="card">
+              <h2 class="card-header" id="currentCityAndDate">London</h2>
+              <div class="card-body">
+                <!-- <h5 class="card-title"></h5> -->
+                <p class="card-text" id="cityTemp"></p>
+                <p class="card-text" id="cityHumidity"></p>
+                <p class="card-text" id="cityWindSpeed"></p>
+                <p class="card-text" id="cityUV"></p>
+              </div>
+            </div>
+          </section>
+        <!-- </div> -->
+
+        <div class="row"></div>
       </div>
     </div>
 
@@ -57,9 +82,20 @@
     <script src="assets/js/script.js"></script>
 
     <script>
+      // Display the current date in header.
+      var todaysDate = moment().format("M/D/YY");
+      var temp;
+      var humidity;
+      var windSpeed;
+      var uvIndex;
+
       // Set the API key for OpenWeather app.
       var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
-      var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=" + APIKey;
+      //var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&q=London&appid=" + APIKey;
+      
+      var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=London&units=imperial&appid=" + APIKey;
+
+      $("#currentCityAndDate").text("London" + " (" + todaysDate + ")");
 
       // Create an AJAX call.
       $.ajax({
@@ -67,7 +103,24 @@
         method: "GET"
       }).then(function(response) {
         console.log(response);
+
+        // Get the temperature from the response object.
+        temp = response.main.temp;
+        $("#cityTemp").text("Temperature: " + temp.toString());
+
+        // Get the humidity.
+        humidity = response.main.humidity;
+        $("#cityHumidity").text("Humidity: " + humidity.toString() + "%");
+
+        // GEt the wind speed.
+        windSpeed = response.wind.speed;
+        $("#cityWindSpeed").text("Wind Speed: " + windSpeed.toString() + " MPH");
+
       });
+
+      
+
+
     </script>
   </body>
 </html>
