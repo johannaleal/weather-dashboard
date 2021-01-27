@@ -1,12 +1,15 @@
  // Get any saved cities from local storage.
  var savedCities = JSON.parse(localStorage.getItem("savedCities"));
-
- // build the side menu.
+ var city;
 
  // This .on("click") function will trigger the AJAX Call
- $("#search-button").on("click", function(event) {
+ //$("#search-button").on("click", function(event) {
+function getCityWeather(city) {
+  
+   //event.preventDefault();
 
-   event.preventDefault();
+   // Empty any cards from a previous city search.
+   $("#five-days").empty();
 
    // Display the current date in header.
    var todaysDate = moment().format("M/D/YYYY");
@@ -18,7 +21,7 @@
    var latitude;
    var longitude;
    var uvIndexBGColor;
-   var city = $("#search-city").val();
+   
 
    // Capitalize first letter of city.
    city = city[0].toUpperCase() + city.substring(1).toLowerCase();
@@ -126,4 +129,19 @@
        };
      });
    }
- })
+//  })
+  }
+
+$("#search-button").on("click", function(event) {
+  event.preventDefault();
+  
+  city = $("#search-city").val();
+
+  if (city) {
+    getCityWeather(city);
+  }
+  else {
+    alert("You must enter a city.");
+  }
+});
+
