@@ -14,10 +14,16 @@ header {
     padding: 10px 0px 10px 0px;
 }
 
-#currentCityAndDate {
-    background-color: white;
+#current-city-data,
+#current-city-header
+{
+    background-color: lightsteelblue;
     border-bottom: 0px;
     padding-bottom: 0px;
+}
+
+#current-city-data {
+    padding: 20px;
 }
 
 #weatherIcon {
