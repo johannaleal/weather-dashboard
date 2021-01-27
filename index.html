@@ -13,13 +13,61 @@
       href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap"
       rel="stylesheet"
     />
+
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+      integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+      crossorigin="anonymous"
+    />
+
     <link rel="stylesheet" href="./assets/css/style.css" />
+
+    <script src="assets/js/script.js"></script>
+
     <title>Weather Dashboard</title>
   </head>
 
   <body>
-    
+    <header>
+      <h1>Weather Dashboard</h1>
+    </header>
+
+    <div class="card" style="width: 18rem;">
+      <div class="card-header flush">
+        <h4>Search for a City:</h4>
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
+        </form>
+      </div>
+
+      <div class="list-group flush">
+        <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+          Los Angeles
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">New York</a>
+        <a href="#" class="list-group-item list-group-item-action">Paris</a>
+        <a href="#" class="list-group-item list-group-item-action">London</a>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="assets/js/script.js"></script>
+
+    <script>
+      // Set the API key for OpenWeather app.
+      var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
+      var queryURL = "http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=" + APIKey;
+
+      // Create an AJAX call.
+      $.ajax({
+        url: queryURL,
+        method: "GET"
+      }).then(function(response) {
+        console.log(response);
+      });
+    </script>
   </body>
 </html>
