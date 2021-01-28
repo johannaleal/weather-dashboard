@@ -1,10 +1,10 @@
 // Get any saved cities from local storage.
-var savedCities = JSON.parse(localStorage.getItem("savedCities"));
+//var savedCities = JSON.parse(localStorage.getItem("savedCities"));
+var savedCities;
 var city;
 
 // Build the left menu nav with saved city searches.
-buildLeftMenu(savedCities);
-console.log($("#city-list"));
+buildLeftMenu();
 
 // Function to disply all the city weather and 5-day forecast
 function getCityWeather(city) {
@@ -12,11 +12,9 @@ function getCityWeather(city) {
   var temp;
   var humidity;
   var windSpeed;
-  var uvIndex;
   var weatherIcon;
   var latitude;
   var longitude;
-  var uvIndexBGColor;
 
   // Display the current date in header.
   var todaysDate = moment().format("M/D/YYYY");
@@ -32,14 +30,14 @@ function getCityWeather(city) {
   $("#forecast-header").empty();
   $("#five-days").empty();
 
-  // Create an AJAX call.
+  // Create an AJAX call to get weather data.
   $.ajax({
     url: queryURL,
     method: "GET"
   }).then(function(response) {
     // Save the city and add it to the left menu.
     saveCitySearch(city);
-    buildLeftMenu(savedCities);
+    buildLeftMenu();
     
     // Get the location of the weather icon and put it in an img tag.
     weatherIcon = " <img src=\"" + "https://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
@@ -63,8 +61,7 @@ function getCityWeather(city) {
     longitude = response.coord.lon;
     latitude = response.coord.lat;
 
-    // Get the UV information. This requires another called to an API where this information can be
-    // retrieved.
+    // Get the UV information. This requires another API call which will get the UV information.
     queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + latitude + "&lon=" + longitude + "&appid=" + APIKey;
     $.ajax({
       url: queryURL,
@@ -78,6 +75,7 @@ function getCityWeather(city) {
       $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
     });
 
+    // Get the 5-day forecast for the city.
     getFiveDayForecast(city, APIKey);
   });
 }
@@ -88,7 +86,11 @@ function capitalize_Words(inString) {
     txt.substr(1).toLowerCase();});
 }
 
-function buildLeftMenu(savedCities) {
+// This function builds out the left nav bar menu with saved city searches.
+function buildLeftMenu() {
+  // Get the saved cities from local storage.
+  savedCities = JSON.parse(localStorage.getItem("savedCities"));
+
   // Before building out the left menu delete any existing cities. Otherwise, duplicates
   // will display.
   $("#city-list").empty();
@@ -102,7 +104,16 @@ function buildLeftMenu(savedCities) {
       newCityLink.attr("aria-current", "true");
       newCityLink.attr("href", "#");
       $("#city-list").append(newCityLink);
-    }
+      
+      // Build out the on click events for the anchor tags.
+      $(newCityLink).on("click", function(event) {
+        // Preventing the buttons default behavior when clicked
+        event.preventDefault();
+
+        // Get the weather data from the city link clicked.
+        getCityWeather($(this).html());
+      });
+    };
   };
 }
 
@@ -145,10 +156,14 @@ function getUVIndexColor(uvIndex) {
 // Function to get the 5-day forecast
 function getFiveDayForecast(city, APIKey) {
   // Get the 5 day forecast
+
+  // API call string
   var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=40&units=imperial&appid=" + APIKey;
 
+  // Set the section header.
   $("#forecast-header").text("5-Day Forecast");
 
+  // AJAX call to get data using API call
   $.ajax({
     url: queryURL,
     method: "GET"
@@ -164,7 +179,7 @@ function getFiveDayForecast(city, APIKey) {
       var dayIcon = "https://openweathermap.org/img/wn/" + response.list[i * 8].weather[0].icon + "@2x.png\"";
 
       // Set the data in a div and append to the main "five-days" div.
-      var fiveeDayCard = "<div class=\"col\">" + 
+      var fiveDayCard = "<div class=\"col\">" + 
                             "<div class=\"card\">" +
                                 "<div class=\"card-body day-card\">" +
                                   "<h5 class=\"card-title\">" + cardDate.toString() + "</h5>" + 
@@ -175,7 +190,7 @@ function getFiveDayForecast(city, APIKey) {
                               "</div>" + 
                             "</div>";
 
-        $("#five-days").append(fiveeDayCard);
+        $("#five-days").append(fiveDayCard);
     };
   });
 }
@@ -196,12 +211,3 @@ $("#search-button").on("click", function(event) {
     alert("You must enter a city.");
   }
 });
-
-// If any of the left nav bar links are clicked 
-// then display the city information.
-$(".list-group-item").click(function(event) {
-  event.preventDefault();
-  console.log("City: " + $(this).text());
-  //getCityWeather($(".list-group-item").text());
-})
-
