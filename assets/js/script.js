@@ -1,142 +1,150 @@
  // Get any saved cities from local storage.
  var savedCities = JSON.parse(localStorage.getItem("savedCities"));
  var city;
+ var savedCities = [];
 
- // This .on("click") function will trigger the AJAX Call
- //$("#search-button").on("click", function(event) {
+// Function to disply all the city weather and 5-day forecast
 function getCityWeather(city) {
-  
-   //event.preventDefault();
+  // Declare variables for output
+  var temp;
+  var humidity;
+  var windSpeed;
+  var uvIndex;
+  var weatherIcon;
+  var latitude;
+  var longitude;
+  var uvIndexBGColor;
 
-   // Empty any cards from a previous city search.
-   $("#five-days").empty();
+  // Display the current date in header.
+  var todaysDate = moment().format("M/D/YYYY");
 
-   // Display the current date in header.
-   var todaysDate = moment().format("M/D/YYYY");
-   var temp;
-   var humidity;
-   var windSpeed;
-   var uvIndex;
-   var weatherIcon;
-   var latitude;
-   var longitude;
-   var uvIndexBGColor;
-   
+  // Set the API key and URL for OpenWeather app.
+  var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
+  var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=" + APIKey;
 
-   // Capitalize first letter of city.
-   city = city[0].toUpperCase() + city.substring(1).toLowerCase();
+  // Capitalize first letter of city.
+  city = city[0].toUpperCase() + city.substring(1).toLowerCase();
 
-   // Set the API key for OpenWeather app.
-   var APIKey = "d9e6975ed0304582f03c3687d8d7dc74";
-   var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=" + APIKey;
+  // Empty any cards from a previous city search.
+  $("#five-days").empty();
 
-   // Create an AJAX call.
-   $.ajax({
-     url: queryURL,
-     method: "GET"
-   }).then(function(response) {
-     // Get the location of the weather icon and put it in an img tag.
-     weatherIcon = " <img src=\"" + "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
+  // Create an AJAX call.
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    // Get the location of the weather icon and put it in an img tag.
+    weatherIcon = " <img src=\"" + "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
 
-     // The header for the city being searched for is the city name, today's date, and the current weather icon.
-     $("#current-city-header").html(city + " (" + todaysDate + ")" + weatherIcon);
+    // The header for the city being searched for includes the city name, today's date, and the current weather icon.
+    $("#current-city-header").html(city + " (" + todaysDate + ")" + weatherIcon);
 
-     // Get the temperature from the response object.
-     temp = (response.main.temp).toFixed(1);
-     $("#cityTemp").text("Temperature: " + temp.toString() + "\xB0F");
+    // Get and set the temperature.
+    temp = (response.main.temp).toFixed(1);
+    $("#cityTemp").text("Temperature: " + temp.toString() + "\xB0F");
 
-     // Get the humidity.
-     humidity = response.main.humidity;
-     $("#cityHumidity").text("Humidity: " + humidity.toString() + "%");
+    // Get and set the humidity.
+    humidity = response.main.humidity;
+    $("#cityHumidity").text("Humidity: " + humidity.toString() + "%");
 
-     // GEt the wind speed.
-     windSpeed = (response.wind.speed).toFixed(1);
-     $("#cityWindSpeed").text("Wind Speed: " + windSpeed.toString() + " MPH");
+    // Get and set the wind speed.
+    windSpeed = (response.wind.speed).toFixed(1);
+    $("#cityWindSpeed").text("Wind Speed: " + windSpeed.toString() + " MPH");
 
-     // Get the longitute and latitude in order to determine the UV Index.
-     longitude = response.coord.lon;
-     latitude = response.coord.lat;
+    // Get the longitute and latitude in order to determine the UV Index.
+    longitude = response.coord.lon;
+    latitude = response.coord.lat;
 
-     // Get the UV information.
-     queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + latitude + "&lon=" + longitude + "&appid=" + APIKey;
-     $.ajax({
-       url: queryURL,
-       method: "GET"
-     }).then(function(responseUV) {
-       $("#cityUV").text("UV Index: ");
+    // Get the UV information. This requires another called to an API where this information can be
+    // retrieved.
+    queryURL = "https://api.openweathermap.org/data/2.5/uvi?lat=" + latitude + "&lon=" + longitude + "&appid=" + APIKey;
+    $.ajax({
+      url: queryURL,
+      method: "GET"
+    }).then(function(responseUV) {
+      // Get and set the UV index and the font and background colors of the element to display it.
+      $("#cityUV").text("UV Index: ");
 
-       var uvIndex = responseUV.value;
+      var uvIndex = responseUV.value;
+      $("#uvIndex").text(uvIndex.toString());
+      $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
+    });
 
-       $("#uvIndex").text(uvIndex.toString());
-       $("#uvIndex").attr("style", getUVIndexColor(uvIndex));
-     });
+    getFiveDayForecast(city, APIKey);
+  });
 
-     getFiveDayForecast(city, APIKey);
-   });
+  // Function to get the UV index font and background colors
+  function getUVIndexColor(uvIndex) {
+    var style;
 
-   function getUVIndexColor(uvIndex) {
-     var style;
+    // Depending on the range of the index it will display a 
+    // different font and background color.
+    if ((uvIndex >= 0) && (uvIndex <= 2)) {
+      style = "color: white; background-color: green";
+    }
+    else if ((uvIndex >= 3) && (uvIndex <= 5)) {
+      style = "color: black; background-color: yellow";
+    }
+    else if ((uvIndex >= 6) && (uvIndex <= 7)) {
+      style = "color: black; background-color: orange";
+    }
+    else if ((uvIndex >= 8) && (uvIndex <= 10)) {
+      style = "color: white; background-color: red";
+    }
+    else if (uvIndex >= 11) {
+      style = "color: white; background-color: purple";
+    };
 
-     if ((uvIndex >= 0) && (uvIndex <= 2)) {
-       style = "color: white; background-color: green";
-     }
-     else if ((uvIndex >= 3) && (uvIndex <= 5)) {
-       style = "color: black; background-color: yellow";
-     }
-     else if ((uvIndex >= 6) && (uvIndex <= 7)) {
-       style = "color: black; background-color: orange";
-     }
-     else if ((uvIndex >= 8) && (uvIndex <= 10)) {
-       style = "color: white; background-color: red";
-     }
-     else if (uvIndex >= 11) {
-       style = "color: white; background-color: purple";
-     };
+    return style;
+  };
 
-     return style;
-   };
+  // Function to get the 5-day forecast
+  function getFiveDayForecast(city, APIKey) {
+    // Get the 5 day forecast
+    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=40&units=imperial&appid=" + APIKey;
 
-   function getFiveDayForecast(city, APIKey) {
-     // Get the 5 day forecast
-     var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=40&units=imperial&appid=" + APIKey;
+    $.ajax({
+      url: queryURL,
+      method: "GET"
+    }).then(function(response) {
 
-     $.ajax({
-       url: queryURL,
-       method: "GET"
-     }).then(function(response) {
+      // Loop through the response object to grab the information for
+      // the 5-day forecast.
+      for (i = 0 ; i < 5; i++) {
+        // Get the forecast date.
+        var cardDate = response.list[i * 8].dt_txt;
+        cardDate = moment(cardDate).format("M/D/YYYY");
 
-       for (i = 0 ; i < 5; i++) {
-       //response.list.forEach(function(day, index) {
-       
-       var cardDate = response.list[i * 8].dt_txt;
+        // Get the forecast date weather icon.
+        var dayIcon = "http://openweathermap.org/img/wn/" + response.list[i * 8].weather[0].icon + "@2x.png\"";
 
-       cardDate = moment(cardDate).format("M/D/YYYY");
+        // Set the data in a div and append to the main "five-days" div.
+        var fiveeDayCard = "<div class=\"col\">" + 
+                              "<div class=\"card\">" +
+                                  "<div class=\"card-body day-card\">" +
+                                    "<h5 class=\"card-title\">" + cardDate.toString() + "</h5>" + 
+                                    "<img src=\"" + dayIcon + "\">" +
+                                    "<p class=\"card-text\">Temp: " + response.list[i * 8].main.temp.toString() + "\xB0F</p>" + 
+                                    "<p class=\"card-text\">Humidity: " + response.list[i * 8].main.humidity.toString() + "%</p>" +
+                                  "</div>" +
+                                "</div>" + 
+                              "</div>";
 
-       var dayIcon = "http://openweathermap.org/img/wn/" + response.list[i * 8].weather[0].icon + "@2x.png\"";
-
-       var fiveeDayCard = "<div class=\"col\">" + 
-                             "<div class=\"card\">" +
-                                 "<div class=\"card-body day-card\">" +
-                                   "<h5 class=\"card-title\">" + cardDate.toString() + "</h5>" + 
-                                   "<img src=\"" + dayIcon + "\">" +
-                                   "<p class=\"card-text\">Temp: " + response.list[i * 8].main.temp.toString() + "\xB0F</p>" + 
-                                   "<p class=\"card-text\">Humidity: " + response.list[i * 8].main.humidity.toString() + "%</p>" +
-                                 "</div>" +
-                               "</div>" + 
-                             "</div>";
-
-         $("#five-days").append(fiveeDayCard);
-       };
-     });
-   }
-//  })
+        $("#five-days").append(fiveeDayCard);
+      };
+    });
   }
+}
 
+// Set the search button's click event.
 $("#search-button").on("click", function(event) {
   event.preventDefault();
   
+  // Get the city entered in the search bar.
   city = $("#search-city").val();
 
+  // If a city was entere call the function to display the city's weather 
+  // conditions. Else display an error message.
   if (city) {
     getCityWeather(city);
   }
