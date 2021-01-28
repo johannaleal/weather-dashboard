@@ -1,7 +1,13 @@
- // Get any saved cities from local storage.
- var savedCities = JSON.parse(localStorage.getItem("savedCities"));
- var city;
- var savedCities = [];
+// Get any saved cities from local storage.
+var savedCities = JSON.parse(localStorage.getItem("savedCities"));
+var city;
+
+// Get any saved scores from local storage.
+var savedCities = JSON.parse(localStorage.getItem("savedCities"));
+
+if (savedCities) {
+  buildLeftMenu();
+};
 
 // Function to disply all the city weather and 5-day forecast
 function getCityWeather(city) {
@@ -25,7 +31,8 @@ function getCityWeather(city) {
   // Capitalize first letter of city.
   city = city[0].toUpperCase() + city.substring(1).toLowerCase();
 
-  // Empty any cards from a previous city search.
+  // Empty the five day header and any cards from a previous city search.
+  $("#forecast-header").empty();
   $("#five-days").empty();
 
   // Create an AJAX call.
@@ -33,8 +40,17 @@ function getCityWeather(city) {
     url: queryURL,
     method: "GET"
   }).then(function(response) {
+    console.log(city);
+
+    // Save the city.
+    saveCitySearch(city);
+
+    // if (savedCities) {
+    //   buildLeftMenu();
+    // };
+    
     // Get the location of the weather icon and put it in an img tag.
-    weatherIcon = " <img src=\"" + "http://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
+    weatherIcon = " <img src=\"" + "https://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
 
     // The header for the city being searched for includes the city name, today's date, and the current weather icon.
     $("#current-city-header").html(city + " (" + todaysDate + ")" + weatherIcon);
@@ -72,68 +88,91 @@ function getCityWeather(city) {
 
     getFiveDayForecast(city, APIKey);
   });
+}
 
-  // Function to get the UV index font and background colors
-  function getUVIndexColor(uvIndex) {
-    var style;
+function buildLeftMenu() {
+  /* <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+        Los Angeles
+  </a>
+  <a href="#" class="list-group-item list-group-item-action">New York</a>
+  <a href="#" class="list-group-item list-group-item-action">Paris</a>
+  <a href="#" class="list-group-item list-group-item-action">London</a>*/
 
-    // Depending on the range of the index it will display a 
-    // different font and background color.
-    if ((uvIndex >= 0) && (uvIndex <= 2)) {
-      style = "color: white; background-color: green";
-    }
-    else if ((uvIndex >= 3) && (uvIndex <= 5)) {
-      style = "color: black; background-color: yellow";
-    }
-    else if ((uvIndex >= 6) && (uvIndex <= 7)) {
-      style = "color: black; background-color: orange";
-    }
-    else if ((uvIndex >= 8) && (uvIndex <= 10)) {
-      style = "color: white; background-color: red";
-    }
-    else if (uvIndex >= 11) {
-      style = "color: white; background-color: purple";
-    };
+}
 
-    return style;
+function saveCitySearch(city) {
+  
+  if ($.inArray(city, savedCities) < 0) {
+    console.log("City: " + city);
+
+    savedCities = savedCities || [];
+    savedCities.push(city);
+    localStorage.removeItem("savedCities");
+    localStorage.setItem("savedCities", JSON.stringify(savedCities));
+  };
+}
+
+// Function to get the UV index font and background colors
+function getUVIndexColor(uvIndex) {
+  var style;
+
+  // Depending on the range of the index it will display a 
+  // different font and background color.
+  if ((uvIndex >= 0) && (uvIndex <= 2)) {
+    style = "color: white; background-color: green";
+  }
+  else if ((uvIndex >= 3) && (uvIndex <= 5)) {
+    style = "color: black; background-color: yellow";
+  }
+  else if ((uvIndex >= 6) && (uvIndex <= 7)) {
+    style = "color: black; background-color: orange";
+  }
+  else if ((uvIndex >= 8) && (uvIndex <= 10)) {
+    style = "color: white; background-color: red";
+  }
+  else if (uvIndex >= 11) {
+    style = "color: white; background-color: purple";
   };
 
-  // Function to get the 5-day forecast
-  function getFiveDayForecast(city, APIKey) {
-    // Get the 5 day forecast
-    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=40&units=imperial&appid=" + APIKey;
+  return style;
+};
 
-    $.ajax({
-      url: queryURL,
-      method: "GET"
-    }).then(function(response) {
+// Function to get the 5-day forecast
+function getFiveDayForecast(city, APIKey) {
+  // Get the 5 day forecast
+  var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&cnt=40&units=imperial&appid=" + APIKey;
 
-      // Loop through the response object to grab the information for
-      // the 5-day forecast.
-      for (i = 0 ; i < 5; i++) {
-        // Get the forecast date.
-        var cardDate = response.list[i * 8].dt_txt;
-        cardDate = moment(cardDate).format("M/D/YYYY");
+  $("#forecast-header").text("5-Day Forecast");
 
-        // Get the forecast date weather icon.
-        var dayIcon = "http://openweathermap.org/img/wn/" + response.list[i * 8].weather[0].icon + "@2x.png\"";
+  $.ajax({
+    url: queryURL,
+    method: "GET"
+  }).then(function(response) {
+    // Loop through the response object to grab the information for
+    // the 5-day forecast.
+    for (i = 0 ; i < 5; i++) {
+      // Get the forecast date.
+      var cardDate = response.list[i * 8].dt_txt;
+      cardDate = moment(cardDate).format("M/D/YYYY");
 
-        // Set the data in a div and append to the main "five-days" div.
-        var fiveeDayCard = "<div class=\"col\">" + 
-                              "<div class=\"card\">" +
-                                  "<div class=\"card-body day-card\">" +
-                                    "<h5 class=\"card-title\">" + cardDate.toString() + "</h5>" + 
-                                    "<img src=\"" + dayIcon + "\">" +
-                                    "<p class=\"card-text\">Temp: " + response.list[i * 8].main.temp.toString() + "\xB0F</p>" + 
-                                    "<p class=\"card-text\">Humidity: " + response.list[i * 8].main.humidity.toString() + "%</p>" +
-                                  "</div>" +
-                                "</div>" + 
-                              "</div>";
+      // Get the forecast date weather icon.
+      var dayIcon = "https://openweathermap.org/img/wn/" + response.list[i * 8].weather[0].icon + "@2x.png\"";
+
+      // Set the data in a div and append to the main "five-days" div.
+      var fiveeDayCard = "<div class=\"col\">" + 
+                            "<div class=\"card\">" +
+                                "<div class=\"card-body day-card\">" +
+                                  "<h5 class=\"card-title\">" + cardDate.toString() + "</h5>" + 
+                                  "<img src=\"" + dayIcon + "\">" +
+                                  "<p class=\"card-text\">Temp: " + response.list[i * 8].main.temp.toString() + "\xB0F</p>" + 
+                                  "<p class=\"card-text\">Humidity: " + response.list[i * 8].main.humidity.toString() + "%</p>" +
+                                "</div>" +
+                              "</div>" + 
+                            "</div>";
 
         $("#five-days").append(fiveeDayCard);
-      };
-    });
-  }
+    };
+  });
 }
 
 // Set the search button's click event.
