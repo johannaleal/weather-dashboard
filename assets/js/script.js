@@ -4,6 +4,7 @@ var city;
 
 // Build the left menu nav with saved city searches.
 buildLeftMenu(savedCities);
+console.log($("#city-list"));
 
 // Function to disply all the city weather and 5-day forecast
 function getCityWeather(city) {
@@ -198,7 +199,9 @@ $("#search-button").on("click", function(event) {
 
 // If any of the left nav bar links are clicked 
 // then display the city information.
-$(".list-group-item").click(function() {
-  getCityWeather($(this).text());
+$(".list-group-item").click(function(event) {
+  event.preventDefault();
+  console.log("City: " + $(this).text());
+  //getCityWeather($(".list-group-item").text());
 })
 
