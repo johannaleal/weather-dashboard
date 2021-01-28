@@ -25,9 +25,8 @@ function getCityWeather(city) {
   var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=" + APIKey;
 
   // Capitalize first letter of city.
-  //city = city[0].toUpperCase() + city.substring(1).toLowerCase();
   city = capitalize_Words(city);
-
+  
   // Empty the five day header and any cards from a previous city search.
   $("#forecast-header").empty();
   $("#five-days").empty();
@@ -37,8 +36,6 @@ function getCityWeather(city) {
     url: queryURL,
     method: "GET"
   }).then(function(response) {
-    //console.log(city);
-
     // Save the city and add it to the left menu.
     saveCitySearch(city);
     buildLeftMenu(savedCities);
@@ -102,19 +99,16 @@ function buildLeftMenu(savedCities) {
       var newCityLink = $("<a>");
       newCityLink.html(savedCities[i]).attr("class", "list-group-item list-group-item-action");
       newCityLink.attr("aria-current", "true");
-
-      // Append each anchor tag to the main city-list div.
+      newCityLink.attr("href", "#");
       $("#city-list").append(newCityLink);
     }
-  }
-
+  };
 }
 
 function saveCitySearch(city) {
-  
+  // Save city in the city array and local storage if it is 
+  // not saved yet.
   if ($.inArray(city, savedCities) < 0) {
-    //console.log("City: " + city);
-
     savedCities = savedCities || [];
     savedCities.push(city);
     localStorage.removeItem("savedCities");
@@ -201,4 +195,10 @@ $("#search-button").on("click", function(event) {
     alert("You must enter a city.");
   }
 });
+
+// If any of the left nav bar links are clicked 
+// then display the city information.
+$(".list-group-item").click(function() {
+  getCityWeather($(this).text());
+})
 
