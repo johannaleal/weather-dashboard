@@ -77,6 +77,9 @@ function getCityWeather(city) {
 
     // Get the 5-day forecast for the city.
     getFiveDayForecast(city, APIKey);
+  })
+  .fail (function() {
+    alert("This city is not found. Please try another.");
   });
 }
 
