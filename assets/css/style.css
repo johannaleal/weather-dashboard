@@ -14,6 +14,12 @@ header {
     padding: 10px 0px 10px 0px;
 }
 
+/* Left nav bar styling */
+#city-list {
+    font-size: 12pt;
+}
+
+/* Styling for large card */
 #current-city-data,
 #current-city-header
 {
@@ -26,15 +32,18 @@ header {
     padding: 20px;
 }
 
+/* Weather icon styling */
 #weatherIcon {
     width: 100px;
     height: 100;
 }
 
+/* UV index span styling */
 #uvIndex {
     padding: 5px;
 }
 
+/* Day card styling */
 .day-card {
     color: white;
     background-color: royalblue;

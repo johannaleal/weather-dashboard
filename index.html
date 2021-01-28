@@ -31,6 +31,7 @@
       <h1>Weather Dashboard</h1>
     </header>
 
+    <!-- Search input box and button -->
     <div class="row">
       <div class="col-md-3">
         <section id="left-nav">
@@ -43,19 +44,15 @@
               </form>
             </div>
 
+            <!-- Display cities that have been searched for here as a vertical menu. -->
             <div id="city-list" class="list-group flush">
-              <!-- <a href="#" class="list-group-item list-group-item-action" aria-current="true">
-                Los Angeles
-              </a>
-              <a href="#" class="list-group-item list-group-item-action">New York</a>
-              <a href="#" class="list-group-item list-group-item-action">Paris</a>
-              <a href="#" class="list-group-item list-group-item-action">London</a> -->
             </div>
           </div>
         </section>
       </div>
 
       <div class="col-md-8">
+        <!-- This section displays today's data for the city requested. -->
           <section>
             <div class="card">
               <h2 class="card-header" id="current-city-header"></h2>
@@ -71,6 +68,7 @@
         
           <br />
 
+          <!-- This section displays the 5-day forecast for the city requested. -->
           <section>
             <div><h3 id="forecast-header"></h3></div>
 
