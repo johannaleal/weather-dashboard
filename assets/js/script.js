@@ -2,12 +2,8 @@
 var savedCities = JSON.parse(localStorage.getItem("savedCities"));
 var city;
 
-// Get any saved scores from local storage.
-var savedCities = JSON.parse(localStorage.getItem("savedCities"));
-
-if (savedCities) {
-  buildLeftMenu();
-};
+// Build the left menu nav with saved city searches.
+buildLeftMenu(savedCities);
 
 // Function to disply all the city weather and 5-day forecast
 function getCityWeather(city) {
@@ -29,7 +25,8 @@ function getCityWeather(city) {
   var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=" + APIKey;
 
   // Capitalize first letter of city.
-  city = city[0].toUpperCase() + city.substring(1).toLowerCase();
+  //city = city[0].toUpperCase() + city.substring(1).toLowerCase();
+  city = capitalize_Words(city);
 
   // Empty the five day header and any cards from a previous city search.
   $("#forecast-header").empty();
@@ -40,14 +37,11 @@ function getCityWeather(city) {
     url: queryURL,
     method: "GET"
   }).then(function(response) {
-    console.log(city);
+    //console.log(city);
 
-    // Save the city.
+    // Save the city and add it to the left menu.
     saveCitySearch(city);
-
-    // if (savedCities) {
-    //   buildLeftMenu();
-    // };
+    buildLeftMenu(savedCities);
     
     // Get the location of the weather icon and put it in an img tag.
     weatherIcon = " <img src=\"" + "https://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png\">";
@@ -90,20 +84,36 @@ function getCityWeather(city) {
   });
 }
 
-function buildLeftMenu() {
-  /* <a href="#" class="list-group-item list-group-item-action" aria-current="true">
-        Los Angeles
-  </a>
-  <a href="#" class="list-group-item list-group-item-action">New York</a>
-  <a href="#" class="list-group-item list-group-item-action">Paris</a>
-  <a href="#" class="list-group-item list-group-item-action">London</a>*/
+// This function capitalizes the first letter of each word. Found it on w3resource.com.
+function capitalize_Words(inString) {
+  return inString.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + 
+    txt.substr(1).toLowerCase();});
+}
+
+function buildLeftMenu(savedCities) {
+  // Before building out the left menu delete any existing cities. Otherwise, duplicates
+  // will display.
+  $("#city-list").empty();
+
+  // If there are saved searches, display them as a vertical menu on the left.
+  if (savedCities) {
+    // Go through the savedCities array and build out the menu as <a> tags.
+    for (i = 0; i < savedCities.length; i++) {
+      var newCityLink = $("<a>");
+      newCityLink.html(savedCities[i]).attr("class", "list-group-item list-group-item-action");
+      newCityLink.attr("aria-current", "true");
+
+      // Append each anchor tag to the main city-list div.
+      $("#city-list").append(newCityLink);
+    }
+  }
 
 }
 
 function saveCitySearch(city) {
   
   if ($.inArray(city, savedCities) < 0) {
-    console.log("City: " + city);
+    //console.log("City: " + city);
 
     savedCities = savedCities || [];
     savedCities.push(city);
